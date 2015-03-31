@@ -15,5 +15,5 @@ class Estore
   end
 end
 
-Estore::ResolvedEvent.include(Estore::OriginalEventMixin)
-Estore::ResolvedIndexedEvent.include(Estore::OriginalEventMixin)
+Estore::ResolvedEvent.send(:include, Estore::OriginalEventMixin)
+Estore::ResolvedIndexedEvent.send(:include, Estore::OriginalEventMixin)

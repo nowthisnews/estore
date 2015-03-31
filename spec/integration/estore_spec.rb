@@ -83,18 +83,18 @@ describe Estore do
 
     expect(subject.ping.sync).to eql 'Pong'
 
-    inject_events(stream, 1)
+    inject_events(stream, 10)
 
     sub = Estore::CatchUpSubscription.new(subject, stream, -1)
     sub.on_event { |_event| mutex.synchronize { received += 1 } }
     sub.on_error { |error| fail error.inspect }
     sub.start
 
-    inject_events_async(stream, 5)
+    inject_events_async(stream, 10)
 
     Timeout.timeout(5) do
       loop do
-        break if received >= 6
+        break if received >= 20
         sleep(0.5)
       end
     end
