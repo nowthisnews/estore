@@ -1,6 +1,6 @@
 AllCops:
   Exclude:
-    - 'lib/eventstore/messages.rb'
+    - 'lib/estore/messages.rb'
     - 'vendor/**/*'
     - 'spec/fixtures/**/*'
 

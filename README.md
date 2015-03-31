@@ -14,12 +14,12 @@ with Complex Event Processing in JavaScript
 Add this line to your application's Gemfile and run Bundler:
 
 ```ruby
-gem 'eventstore'
+gem 'estore'
 ```
 
 Or install it yourself as:
 
-    $ gem install eventstore
+    $ gem install estore
 
 ## Usage
 

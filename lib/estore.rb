@@ -80,13 +80,13 @@ class Eventstore
   end
 end
 
-require_relative 'eventstore/errors'
-require_relative 'eventstore/package'
-require_relative 'eventstore/messages'
-require_relative 'eventstore/message_extensions'
-require_relative 'eventstore/connection_context'
-require_relative 'eventstore/connection'
-require_relative 'eventstore/connection/buffer'
-require_relative 'eventstore/connection/commands'
-require_relative 'eventstore/subscription'
-require_relative 'eventstore/catchup_subscription'
+require_relative 'estore/errors'
+require_relative 'estore/package'
+require_relative 'estore/messages'
+require_relative 'estore/message_extensions'
+require_relative 'estore/connection_context'
+require_relative 'estore/connection'
+require_relative 'estore/connection/buffer'
+require_relative 'estore/connection/commands'
+require_relative 'estore/subscription'
+require_relative 'estore/catchup_subscription'

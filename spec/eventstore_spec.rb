@@ -2,10 +2,10 @@ require 'spec_helper'
 
 describe Eventstore do
   let(:es) { Eventstore.new('localhost', 1113) }
-  subject { new_event_store }
-  let(:injector) { new_event_store }
+  subject { new_estore }
+  let(:injector) { new_estore }
 
-  def new_event_store
+  def new_estore
     es = Eventstore.new('localhost', 1113)
     es.on_error { |error| Thread.main.raise(error) }
     es
