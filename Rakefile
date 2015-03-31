@@ -1,13 +1,24 @@
-require 'bundler/gem_tasks'
+require 'bundler'
 require 'rspec/core/rake_task'
 
-VENDORED_PROTO = 'vendor/proto/ClientMessageDtos.proto'
-PROTO_URL = 'https://raw.githubusercontent.com/EventStore/EventStore/oss-v3.0.1/src/Protos/ClientAPI/ClientMessageDtos.proto'
-PROTO_DIR = 'lib/estore'
+Bundler.setup
 
 RSpec::Core::RakeTask.new(:spec)
+task default: [:ci]
 
-task default: :spec
+desc 'Run CI tasks'
+task ci: [:spec]
+
+begin
+  require 'rubocop/rake_task'
+
+  Rake::Task[:default].enhance [:rubocop]
+
+  RuboCop::RakeTask.new do |task|
+    task.options << '--display-cop-names'
+  end
+rescue LoadError
+end
 
 desc 'Update the protobuf messages definition'
 task :proto do
