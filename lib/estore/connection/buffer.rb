@@ -1,4 +1,4 @@
-class Eventstore
+class Estore
   class Connection
     # Buffer receives data from the TCP connection, and parses the binary packages.
     # Parsed packages are given back to the given handler as they are decoded.
@@ -50,7 +50,7 @@ class Eventstore
 
       def handle(pkg)
         code, flags, uuid_bytes, message = parse(pkg)
-        command = Eventstore::Connection.command_name(code)
+        command = Estore::Connection.command_name(code)
         handler.call(command, message, Package.parse_uuid(uuid_bytes), flags)
       end
 

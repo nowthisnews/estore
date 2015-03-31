@@ -1,4 +1,4 @@
-class Eventstore
+class Estore
   # Package is a length-prefixed binary frame transferred over TCP
   class Package
     def self.encode(code, correlation_id, msg)

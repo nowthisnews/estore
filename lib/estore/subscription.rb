@@ -1,4 +1,4 @@
-class Eventstore
+class Estore
   # Volatile Subscriptions
   #
   # This kind of subscription calls a given function for events written

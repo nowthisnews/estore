@@ -1,14 +1,14 @@
 require 'securerandom'
 
-# The Eventstore class is responsible for maintaining a full-duplex connection
+# The Estore class is responsible for maintaining a full-duplex connection
 # between the client and the Event Store server.
-# EventStore is thread-safe, and it is recommended that only one instance per application is created.
+# Estore is thread-safe, and it is recommended that only one instance per application is created.
 #
 # All operations are handled fully asynchronously, returning a promise.
 # If you need to execute synchronously, simply call .sync on the returned promise.
 #
-# To get maximum performance from the connection, it is recommended that it be used asynchronously.
-class Eventstore
+# To get maximum performance from the connection, it is recommended to use it asynchronously.
+class Estore
   attr_reader :host, :port, :connection, :context, :error_handler
   def initialize(host, port = 2113)
     @host = host

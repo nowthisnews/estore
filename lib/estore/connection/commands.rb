@@ -1,4 +1,4 @@
-class Eventstore
+class Estore
   # Mapping between command names and codes
   # From https://github.com/EventStore/EventStore/blob/master/src/EventStore.ClientAPI/SystemData/TcpCommand.cs
   class Connection

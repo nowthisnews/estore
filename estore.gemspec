@@ -5,7 +5,7 @@ require 'estore/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'estore'
-  spec.version       = EventStore::VERSION
+  spec.version       = Estore::VERSION
   spec.authors       = ['Mathieu Ravaux', 'Héctor Ramón']
   spec.email         = ['mathieu.ravaux@gmail.com', 'hector0193@gmail.com']
   spec.summary       = 'An Event Store driver for Ruby'
