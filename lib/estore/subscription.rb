@@ -8,12 +8,12 @@ class Estore
   # the subscriber can expect to see event number 101 onwards until the time
   # the subscription is closed or dropped.
   class Subscription
-    attr_reader :eventstore, :stream, :resolve_link_tos, :id, :position
+    attr_reader :id, :stream, :resolve_link_tos, :position
 
-    def initialize(eventstore, stream, resolve_link_tos: true)
-      @eventstore = eventstore
+    def initialize(estore, stream, options = {})
+      @estore = estore
       @stream = stream
-      @resolve_link_tos = resolve_link_tos
+      @resolve_link_tos = options.fetch(:resolve_link_tos, true)
     end
 
     def on_error(&block)
@@ -29,14 +29,14 @@ class Estore
     end
 
     def stop
-      eventstore.unsubscribe_from_stream(id) if id
+      @estore.unsubscribe(id) if id
       @id = nil
     end
 
     private
 
     def subscribe
-      prom = eventstore.subscribe_to_stream(self, stream, resolve_link_tos)
+      prom = @estore.subscribe(stream, self, resolve_link_tos: resolve_link_tos)
       @id = prom.correlation_id
       prom.sync
     end

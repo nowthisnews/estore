@@ -35,7 +35,7 @@ Or install it yourself as:
 
 ## Usage
 
-See [spec/integration/estore_spec.rb](spec/integration/estore_spec.rb) for a sample usage.
+See [spec/integration/session_spec.rb](spec/integration/session_spec.rb) for a sample usage.
 
 ## License
 

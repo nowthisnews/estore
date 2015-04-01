@@ -1,16 +1,14 @@
 class Estore
   # Connection owns the TCP socket, formats and sends commands over the socket.
-  # It also starts a background thread to read from the TCP socket and handle received packages,
-  # dispatching them to the calling app.
+  # It also starts a background thread to read from the TCP socket and handle
+  # received packages, dispatching them to the calling app.
   class Connection
-    attr_reader :host, :port, :context, :error_handler
-    attr_reader :buffer, :mutex
+    attr_reader :host, :port, :context, :buffer, :mutex
 
     def initialize(host, port, context)
       @host = host
       @port = Integer(port)
       @context = context
-
       @buffer = Buffer.new(&method(:on_received_package))
       @mutex = Mutex.new
     end
@@ -29,34 +27,36 @@ class Estore
 
       mutex.synchronize do
         promise = context.register_command(correlation_id, command, handler)
-        # puts "Sending #{command} command with correlation id #{correlation_id}"
-        # puts "Sending to socket: #{frame.length} #{frame.inspect}"
-        to_write = frame.to_s
-        socket.write(to_write)
+        socket.write(frame.to_s)
         promise
       end
     end
 
     private
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength
     def on_received_package(command, message, uuid, _flags)
-      # p(fn: "on_received_package", command: command)
-      # callback = context.received_package(uuid, command, message)
       case command
-      when 'Pong' then                              context.fulfilled_command(uuid, 'Pong')
-      when 'HeartbeatRequestCommand' then           send_command('HeartbeatResponseCommand')
-      when 'SubscriptionConfirmation' then          context.fulfilled_command(uuid, decode(SubscriptionConfirmation, message))
+      when 'Pong'
+        context.fulfill(uuid, 'Pong')
+      when 'HeartbeatRequestCommand'
+        send_command('HeartbeatResponseCommand')
+      when 'SubscriptionConfirmation'
+        context.fulfill(uuid, decode(SubscriptionConfirmation, message))
       when 'ReadStreamEventsForwardCompleted'
-        context.fulfilled_command(uuid, decode(ReadStreamEventsCompleted, message))
+        context.fulfill(uuid, decode(ReadStreamEventsCompleted, message))
       when 'StreamEventAppeared'
         resolved_event = decode(StreamEventAppeared, message).event
-        context.trigger(uuid, 'event_appeared', resolved_event)
-      when 'WriteEventsCompleted' then              on_write_events_completed(uuid, decode(WriteEventsCompleted, message))
-      else fail command
+        context.trigger(uuid, :event_appeared, resolved_event)
+      when 'WriteEventsCompleted'
+        on_write_events_completed(uuid, decode(WriteEventsCompleted, message))
+      else
+        raise command
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
 
     def on_write_events_completed(uuid, response)
       if response.result != OperationResult::Success
@@ -65,7 +65,7 @@ class Estore
         return
       end
 
-      context.fulfilled_command(uuid, response)
+      context.fulfill(uuid, response)
     end
 
     def decode(type, message)
@@ -91,7 +91,8 @@ class Estore
       @socket
     rescue TimeoutError, Errno::ECONNREFUSED, Errno::EHOSTDOWN,
            Errno::EHOSTUNREACH, Errno::ENETUNREACH, Errno::ETIMEDOUT
-      raise CannotConnectError, "Error connecting to Eventstore on #{host.inspect}:#{port.inspect} (#{$ERROR_INFO.class})"
+      raise CannotConnectError, "Error connecting to Eventstore on "\
+        "#{host.inspect}:#{port.inspect} (#{$ERROR_INFO.class})"
     end
 
     def process_downstream

@@ -24,7 +24,9 @@ class Estore
     end
 
     def self.parse_uuid(bytes)
-      a, b, c, d, e, f, g, h = *bytes.unpack('n*').map { |n| n.to_s(16) }.map { |n| n.rjust(4, '0') }
+      a, b, c, d, e, f, g, h =
+        *bytes.unpack('n*').map { |n| n.to_s(16) }.map { |n| n.rjust(4, '0') }
+
       [a, b, '-', c, '-', d, '-', e, '-', f, g, h].join('')
     end
   end
