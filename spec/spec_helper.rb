@@ -1,7 +1,10 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'eventstore'
+# encoding: utf-8
+if RUBY_ENGINE == 'rbx'
+  require 'codeclimate-test-reporter'
+  CodeClimate::TestReporter.start
+end
 
-require 'json'
+require 'estore'
 
 trap 'TTIN' do
   Thread.list.each do |thread|

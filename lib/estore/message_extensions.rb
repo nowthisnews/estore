@@ -1,4 +1,4 @@
-class Eventstore
+class Estore
   # @see https://github.com/EventStore/EventStore/blob/master/src/EventStore.Core/Data/ResolvedEvent.cs#L9
   module OriginalEventMixin
     def original_event
@@ -15,5 +15,5 @@ class Eventstore
   end
 end
 
-Eventstore::ResolvedEvent.include(Eventstore::OriginalEventMixin)
-Eventstore::ResolvedIndexedEvent.include(Eventstore::OriginalEventMixin)
+Estore::ResolvedEvent.send(:include, Estore::OriginalEventMixin)
+Estore::ResolvedIndexedEvent.send(:include, Estore::OriginalEventMixin)

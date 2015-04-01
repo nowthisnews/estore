@@ -1,21 +1,39 @@
-require 'bundler/gem_tasks'
+require 'bundler'
 require 'rspec/core/rake_task'
 
-VENDORED_PROTO = 'vendor/proto/ClientMessageDtos.proto'
-PROTO_URL = 'https://raw.githubusercontent.com/EventStore/EventStore/oss-v3.0.1/src/Protos/ClientAPI/ClientMessageDtos.proto'
-PROTO_DIR = 'lib/eventstore'
+Bundler.setup
 
 RSpec::Core::RakeTask.new(:spec)
+task default: [:ci]
 
-task default: :spec
+desc 'Run CI tasks'
+task ci: [:spec]
+
+begin
+  require 'rubocop/rake_task'
+
+  Rake::Task[:default].enhance [:rubocop]
+
+  RuboCop::RakeTask.new do |task|
+    task.options << '--display-cop-names'
+  end
+rescue LoadError
+end
+
+VENDORED_PROTO = 'vendor/proto/ClientMessageDtos.proto'
+PROTO_URL = 'https://raw.githubusercontent.com/EventStore/EventStore/'\
+    'oss-v3.0.1/src/Protos/ClientAPI/ClientMessageDtos.proto'
 
 desc 'Update the protobuf messages definition'
 task :proto do
   system("wget -O #{VENDORED_PROTO} #{PROTO_URL}")
-  system("mkdir -p #{PROTO_DIR}")
-  beefcake_bin = Bundler.bin_path.join('protoc-gen-beefcake').to_s
-  if system("BEEFCAKE_NAMESPACE=Eventstore protoc --plugin=#{beefcake_bin} --beefcake_out lib/eventstore #{VENDORED_PROTO}")
-    FileUtils.mv('lib/eventstore/ClientMessageDtos.pb.rb', 'lib/eventstore/messages.rb')
-    system("sed -i '' 's/module Eventstore/class Eventstore/' lib/eventstore/messages.rb")
+
+  beefcake = Bundler.bin_path.join('protoc-gen-beefcake').to_s
+
+  if system("BEEFCAKE_NAMESPACE=Estore protoc --plugin=#{beefcake} "\
+      "--beefcake_out lib/estore #{VENDORED_PROTO}")
+    FileUtils.mv('lib/estore/ClientMessageDtos.pb.rb', 'lib/estore/messages.rb')
+    system("sed -i '' 's/module Eventstore/class Eventstore/' "\
+        "lib/estore/messages.rb")
   end
 end

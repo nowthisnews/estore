@@ -1,7 +1,7 @@
 ## Generated from vendor/proto/ClientMessageDtos.proto for EventStore.Client.Messages
 require 'beefcake'
 
-class Eventstore
+class Estore
   module OperationResult
     Success = 0
     PrepareTimeout = 1

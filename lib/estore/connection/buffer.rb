@@ -1,6 +1,7 @@
-class Eventstore
+class Estore
   class Connection
-    # Buffer receives data from the TCP connection, and parses the binary packages.
+    # Buffer receives data from the TCP connection, and parses the binary
+    # packages.
     # Parsed packages are given back to the given handler as they are decoded.
     class Buffer
       attr_reader :buffer, :handler, :mutex
@@ -11,7 +12,9 @@ class Eventstore
       end
 
       def <<(bytes)
-        bytes = bytes.force_encoding('BINARY') if bytes.respond_to? :force_encoding
+        bytes = bytes.force_encoding('BINARY') if
+          bytes.respond_to? :force_encoding
+
         mutex.synchronize do
           @buffer << bytes
         end
@@ -50,7 +53,7 @@ class Eventstore
 
       def handle(pkg)
         code, flags, uuid_bytes, message = parse(pkg)
-        command = Eventstore::Connection.command_name(code)
+        command = Estore::Connection.command_name(code)
         handler.call(command, message, Package.parse_uuid(uuid_bytes), flags)
       end
 

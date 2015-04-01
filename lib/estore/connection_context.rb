@@ -1,11 +1,12 @@
 require 'promise'
 
-class Eventstore
+class Estore
   # Extension of a Ruby implementation of the Promises/A+ spec
   # that carries the correlation id of the command.
   # @see https://github.com/lgierth/promise.rb
   class Promise < ::Promise
     attr_reader :correlation_id
+
     def initialize(correlation_id)
       super()
       @correlation_id = correlation_id
@@ -29,9 +30,8 @@ class Eventstore
       @targets = {}
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def register_command(uuid, command, target = nil)
-      # p fn: "register_command", uuid: uuid, command: command
       case command
       when 'Ping' then promise(uuid)
       when 'ReadStreamEventsForward' then promise(uuid)
@@ -39,26 +39,28 @@ class Eventstore
       when 'WriteEvents' then promise(uuid)
       when 'HeartbeatResponseCommand' then :nothing_to_do
       when 'UnsubscribeFromStream' then :nothing_to_do
-      else fail("Unknown command #{command}")
+      else raise "Unknown command #{command}"
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
-    def fulfilled_command(uuid, value)
+    def fulfill(uuid, value)
       prom = nil
+
       mutex.synchronize do
         prom = requests.delete(uuid)
       end
-      # p fn: "fulfilled_command", uuid: uuid, prom: prom, requests: requests
+
       prom.fulfill(value) if prom
     end
 
     def rejected_command(uuid, error)
       prom = nil
+
       mutex.synchronize do
         prom = requests.delete(uuid)
       end
-      # p fn: "fulfilled_command", uuid: uuid, prom: prom, requests: requests
+
       prom.reject(error) if prom
     end
 

@@ -1,2 +1,2 @@
 --no-private
---exclude lib/eventstore/messages.rb
+--exclude lib/estore/messages.rb

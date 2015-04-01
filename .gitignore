@@ -8,9 +8,11 @@
 /spec/reports/
 /tmp/
 /vendor/bundle/
+/.idea/
 *.bundle
 *.so
 *.o
 *.a
+*.gem
 mkmf.log
 .rspec
