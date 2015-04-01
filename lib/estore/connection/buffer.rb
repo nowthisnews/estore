@@ -1,4 +1,4 @@
-class Estore
+module Estore
   class Connection
     # Buffer receives data from the TCP connection, and parses the binary
     # packages.

@@ -1,4 +1,4 @@
-class Estore
+module Estore
   # Connection owns the TCP socket, formats and sends commands over the socket.
   # It also starts a background thread to read from the TCP socket and handle
   # received packages, dispatching them to the calling app.

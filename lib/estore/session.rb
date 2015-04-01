@@ -1,6 +1,6 @@
 require 'securerandom'
 
-class Estore  # TODO: Change to module
+module Estore
   # The Session class is responsible for maintaining a full-duplex connection
   # between the client and the Event Store server.
   # An Estore session is thread-safe, and it is recommended to only have one

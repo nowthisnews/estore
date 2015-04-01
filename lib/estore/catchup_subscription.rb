@@ -1,4 +1,4 @@
-class Estore
+module Estore
   # Catch-Up Subscriptions
   #
   # This kind of subscription specifies a starting point, in the form of an

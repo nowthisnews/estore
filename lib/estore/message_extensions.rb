@@ -1,4 +1,4 @@
-class Estore
+module Estore
   # @see https://github.com/EventStore/EventStore/blob/master/src/EventStore.Core/Data/ResolvedEvent.cs#L9
   module OriginalEventMixin
     def original_event

@@ -1,6 +1,6 @@
 require 'promise'
 
-class Estore
+module Estore
   # Extension of a Ruby implementation of the Promises/A+ spec
   # that carries the correlation id of the command.
   # @see https://github.com/lgierth/promise.rb

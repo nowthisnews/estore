@@ -1,3 +1,3 @@
-class Estore
+module Estore
   VERSION = '0.0.2'
 end
