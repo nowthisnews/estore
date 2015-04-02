@@ -47,11 +47,26 @@ describe Estore::Session do
     end
   end
 
+  it 'reads all the events from a stream' do
+    read = session.read(stream_with(100)).sync
+
+    expect(read.events.size).to be(100)
+    expect(read.events).to start_from(0)
+  end
+
+
+  it 'reads all the events forward from a stream' do
+    read = session.read(stream_with(100), from: 20).sync
+
+    expect(read.events.size).to be(80)
+    expect(read.events).to start_from(20)
+  end
+
   it 'reads an interval of events from stream' do
-    read = session.read(stream_with(30), 15, 15).sync
+    read = session.read(stream_with(30), from: 10, limit: 15).sync
 
     expect(read.events.size).to be(15)
-    expect(read.events).to start_from(15)
+    expect(read.events).to start_from(10)
   end
 
   it 'allows to make a live subscription' do
