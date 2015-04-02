@@ -34,27 +34,27 @@ module Estore
       command('Ping')
     end
 
-    def read(stream, start, limit)
-      msg = ReadStreamEvents.new(
-        event_stream_id: stream,
-        from_event_number: start,
-        max_count: limit,
-        resolve_link_tos: true,
-        require_master: false
-      )
+    def read(stream, options = {})
+      from = options[:from] || 0
+      limit = options[:limit]
 
-      command('ReadStreamEventsForward', msg)
+      if limit
+        read_batch(stream, from, limit)
+      else
+        read_forward(stream, from)
+      end
+    end
+
+    def read_batch(stream, from, limit)
+      command(Commands::ReadBatch, stream, from, limit)
+    end
+
+    def read_forward(stream, from, batch_size=nil, &block)
+      command(Commands::ReadForward, stream, from, batch_size, &block)
     end
 
     def append(stream, events, options = {})
-      msg = WriteEvents.new(
-        event_stream_id: stream,
-        expected_version: options[:expected_version] || -2,
-        events: Array(events).map { |event| new_event(event) },
-        require_master: true
-      )
-
-      command('WriteEvents', msg)
+      command(Commands::Append, stream, events, options)
     end
 
     def subscribe(stream, handler, options = {})
@@ -76,25 +76,8 @@ module Estore
 
     private
 
-    CONTENT_TYPES = {
-      json: 1
-    }
-
-    def new_event(event)
-      uuid = event[:id] || SecureRandom.uuid
-      content_type = event.fetch(:content_type, :json)
-
-      NewEvent.new(
-        event_id: Package.encode_uuid(uuid),
-        event_type: event[:type],
-        data: event[:data],
-        data_content_type: CONTENT_TYPES.fetch(content_type, 0),
-        metadata_content_type: 1
-      )
-    end
-
-    def command(*args)
-      connection.send_command(*args)
+    def command(command, *args)
+      connection.command(command.new(connection, *args))
     end
   end
 end

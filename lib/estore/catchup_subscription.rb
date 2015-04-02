@@ -23,7 +23,7 @@ module Estore
       @mutex = Mutex.new
       @queue = []
       @position = from - 1
-      @batch_size = options[:batch_size] || 100
+      @batch_size = options[:batch_size]
     end
 
     def on_catchup(&block)
@@ -50,28 +50,26 @@ module Estore
 
     def switch_to_live
       @mutex.synchronize do
-        dispatch_events(received_while_backfilling)
+        dispatch_all(received_while_backfilling)
         @queue = nil
         @caught_up = true
       end
     end
 
     def backfill
-      loop do
-        events, finished = fetch_batch(@position + 1)
+      @estore.read_forward(stream, @position + 1, @batch_size) do |events|
         @mutex.synchronize do
-          dispatch_events(events)
+          dispatch_all(events)
         end
-        break if finished
       end
     end
 
-    def dispatch_events(events)
+    def dispatch_all(events)
       events.each { |e| dispatch(e) }
     end
 
     def fetch_batch(from)
-      prom = @estore.read(stream, from, @batch_size)
+      prom = @estore.read_batch(stream, from, @batch_size)
       response = prom.sync
       [Array(response.events), response.is_end_of_stream]
     end

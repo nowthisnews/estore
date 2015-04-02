@@ -1,57 +1,33 @@
 require 'promise'
 
 module Estore
-  # Extension of a Ruby implementation of the Promises/A+ spec
-  # that carries the correlation id of the command.
-  # @see https://github.com/lgierth/promise.rb
-  class Promise < ::Promise
-    attr_reader :correlation_id
-
-    def initialize(correlation_id)
-      super()
-      @correlation_id = correlation_id
-    end
-
-    def wait
-      t = Thread.current
-      resume = proc { t.wakeup }
-      self.then(resume, resume)
-      sleep
-    end
-  end
-
-  # Registry storing handlers for the outstanding commands and
-  # current subscriptions
+  # Registry storing handlers for the pending commands
   class ConnectionContext
-    attr_reader :mutex,  :requests, :targets
     def initialize
       @mutex = Mutex.new
-      @requests = {}
-      @targets = {}
+      @commands = {}
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
-    def register_command(uuid, command, target = nil)
-      case command
-      when 'Ping' then promise(uuid)
-      when 'ReadStreamEventsForward' then promise(uuid)
-      when 'SubscribeToStream' then promise(uuid, target)
-      when 'WriteEvents' then promise(uuid)
-      when 'HeartbeatResponseCommand' then :nothing_to_do
-      when 'UnsubscribeFromStream' then :nothing_to_do
-      else raise "Unknown command #{command}"
+    def register(command)
+      unless command.finished?
+        @mutex.synchronize do
+          @commands[command.uuid] = command
+        end
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
-    def fulfill(uuid, value)
-      prom = nil
+    def dispatch(uuid, message)
+      command = @commands[uuid]
 
-      mutex.synchronize do
-        prom = requests.delete(uuid)
+      if command
+        command.handle message
+
+        if command.finished?
+          @mutex.synchronize do
+            @commands.delete(uuid)
+          end
+        end
       end
-
-      prom.fulfill(value) if prom
     end
 
     def rejected_command(uuid, error)

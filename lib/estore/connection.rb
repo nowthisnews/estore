@@ -3,8 +3,6 @@ module Estore
   # It also starts a background thread to read from the TCP socket and handle
   # received packages, dispatching them to the calling app.
   class Connection
-    attr_reader :host, :port, :context, :buffer, :mutex
-
     def initialize(host, port, context)
       @host = host
       @port = Integer(port)
@@ -18,65 +16,49 @@ module Estore
       socket.close
     end
 
-    def send_command(command, msg = nil, handler = nil, uuid = nil)
-      code = COMMANDS.fetch(command)
+    def command(command)
+      result = command.call
+      @context.register(command) unless command.finished?
+      result
+    end
+
+    def write(uuid, command, msg = nil)
       msg.validate! if msg
 
-      correlation_id = uuid || SecureRandom.uuid
-      frame = Package.encode(code, correlation_id, msg)
+      code = COMMANDS.fetch(command)
+      frame = Package.encode(code, uuid, msg)
 
-      mutex.synchronize do
-        promise = context.register_command(correlation_id, command, handler)
+      @mutex.synchronize do
         socket.write(frame.to_s)
-        promise
       end
     end
 
     private
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize
-    # rubocop:disable Metrics/MethodLength
     def on_received_package(command, message, uuid, _flags)
-      case command
-      when 'Pong'
-        context.fulfill(uuid, 'Pong')
-      when 'HeartbeatRequestCommand'
-        send_command('HeartbeatResponseCommand')
-      when 'SubscriptionConfirmation'
-        context.fulfill(uuid, decode(SubscriptionConfirmation, message))
-      when 'ReadStreamEventsForwardCompleted'
-        context.fulfill(uuid, decode(ReadStreamEventsCompleted, message))
-      when 'StreamEventAppeared'
-        resolved_event = decode(StreamEventAppeared, message).event
-        context.trigger(uuid, :event_appeared, resolved_event)
-      when 'WriteEventsCompleted'
-        on_write_events_completed(uuid, decode(WriteEventsCompleted, message))
+      if command == 'HeartbeatRequestCommand'
+        write(SecureRandom.uuid, 'HeartbeatResponseCommand')
       else
-        raise command
-      end
-    end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength
-
-    def on_write_events_completed(uuid, response)
-      if response.result != OperationResult::Success
-        p fn: 'on_write_events_completed', at: error, result: response.result
-        context.rejected_command(uuid, response)
-        return
+        @context.dispatch(uuid, message)
       end
 
-      context.fulfill(uuid, response)
-    end
-
-    def decode(type, message)
-      type.decode(message)
-    rescue => error
-      puts "Protobuf decoding error on connection #{object_id}"
-      puts error.inspect
-      p type: type, message: message
-      puts "\n\n"
-      puts(*error.backtrace)
-      raise error
+      #case command
+      #when 'Pong'
+      #  context.fulfill(uuid, 'Pong')
+      #when 'HeartbeatRequestCommand'
+      #  send_command('HeartbeatResponseCommand')
+      #when 'SubscriptionConfirmation'
+      #  context.fulfill(uuid, decode(SubscriptionConfirmation, message))
+      #when 'ReadStreamEventsForwardCompleted'
+      #  context.fulfill(uuid, decode(ReadStreamEventsCompleted, message))
+      #when 'StreamEventAppeared'
+      #  resolved_event = decode(StreamEventAppeared, message).event
+      #  context.trigger(uuid, :event_appeared, resolved_event)
+      #when 'WriteEventsCompleted'
+      #  on_write_events_completed(uuid, decode(WriteEventsCompleted, message))
+      #else
+      #  raise command
+      #end
     end
 
     def socket
@@ -84,7 +66,7 @@ module Estore
     end
 
     def connect
-      @socket = TCPSocket.open(host, port)
+      @socket = TCPSocket.open(@host, @port)
       Thread.new do
         process_downstream
       end
@@ -92,12 +74,12 @@ module Estore
     rescue TimeoutError, Errno::ECONNREFUSED, Errno::EHOSTDOWN,
            Errno::EHOSTUNREACH, Errno::ENETUNREACH, Errno::ETIMEDOUT
       raise CannotConnectError, "Error connecting to Eventstore on "\
-        "#{host.inspect}:#{port.inspect} (#{$ERROR_INFO.class})"
+        "#{@host.inspect}:#{@port.inspect} (#{$ERROR_INFO.class})"
     end
 
     def process_downstream
       loop do
-        buffer << socket.sysread(4096)
+        @buffer << socket.sysread(4096)
       end
     rescue IOError, EOFError
       on_disconnect
@@ -113,7 +95,7 @@ module Estore
 
     def on_exception(error)
       puts "process_downstream_error #{error.inspect}"
-      context.on_error(error)
+      @context.on_error(error)
     end
   end
 end
