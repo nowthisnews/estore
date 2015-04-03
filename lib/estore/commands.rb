@@ -1,0 +1,8 @@
+require 'estore/commands/promise'
+require 'estore/commands/base'
+require 'estore/commands/append'
+require 'estore/commands/ping'
+require 'estore/commands/read_batch'
+require 'estore/commands/read_forward'
+require 'estore/commands/subscription'
+require 'estore/commands/catch_up_subscription'
