@@ -3,6 +3,10 @@ module Estore
   # It also starts a background thread to read from the TCP socket and handle
   # received packages, dispatching them to the calling app.
   class Connection
+    extend Forwardable
+
+    delegate [:register, :remove] => :@context
+
     def initialize(host, port, context)
       @host = host
       @port = Integer(port)
@@ -14,12 +18,6 @@ module Estore
     def close
       @terminating = true
       socket.close
-    end
-
-    def command(command)
-      result = command.call
-      @context.register(command) unless command.finished?
-      result
     end
 
     def write(uuid, command, msg = nil)
@@ -35,30 +33,12 @@ module Estore
 
     private
 
-    def on_received_package(command, message, uuid, _flags)
-      if command == 'HeartbeatRequestCommand'
+    def on_received_package(message, type, uuid, _flags)
+      if type == 'HeartbeatRequestCommand'
         write(SecureRandom.uuid, 'HeartbeatResponseCommand')
       else
-        @context.dispatch(uuid, message)
+        @context.dispatch(uuid, message, type)
       end
-
-      #case command
-      #when 'Pong'
-      #  context.fulfill(uuid, 'Pong')
-      #when 'HeartbeatRequestCommand'
-      #  send_command('HeartbeatResponseCommand')
-      #when 'SubscriptionConfirmation'
-      #  context.fulfill(uuid, decode(SubscriptionConfirmation, message))
-      #when 'ReadStreamEventsForwardCompleted'
-      #  context.fulfill(uuid, decode(ReadStreamEventsCompleted, message))
-      #when 'StreamEventAppeared'
-      #  resolved_event = decode(StreamEventAppeared, message).event
-      #  context.trigger(uuid, :event_appeared, resolved_event)
-      #when 'WriteEventsCompleted'
-      #  on_write_events_completed(uuid, decode(WriteEventsCompleted, message))
-      #else
-      #  raise command
-      #end
     end
 
     def socket
@@ -94,7 +74,9 @@ module Estore
     end
 
     def on_exception(error)
-      puts "process_downstream_error #{error.inspect}"
+      puts "process_downstream_error"
+      puts error.message
+      puts error.backtrace
       @context.on_error(error)
     end
   end

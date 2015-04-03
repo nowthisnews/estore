@@ -31,7 +31,7 @@ module Estore
     end
 
     def ping
-      command('Ping')
+      command(Commands::Ping)
     end
 
     def read(stream, options = {})
@@ -46,38 +46,29 @@ module Estore
     end
 
     def read_batch(stream, from, limit)
-      command(Commands::ReadBatch, stream, from, limit)
+      command(Commands::ReadBatch, stream, from, limit).call
     end
 
-    def read_forward(stream, from, batch_size=nil, &block)
-      command(Commands::ReadForward, stream, from, batch_size, &block)
+    def read_forward(stream, from, batch_size = nil, &block)
+      command(Commands::ReadForward, stream, from, batch_size, &block).call
     end
 
     def append(stream, events, options = {})
-      command(Commands::Append, stream, events, options)
-    end
-
-    def subscribe(stream, handler, options = {})
-      msg = SubscribeToStream.new(
-        event_stream_id: stream,
-        resolve_link_tos: options[:resolve_link_tos]
-      )
-
-      command('SubscribeToStream', msg, handler)
+      command(Commands::Append, stream, events, options).call
     end
 
     def subscription(stream, options = {})
-      if options[:catch_up_from]
-        CatchUpSubscription.new(self, stream, options[:catch_up_from], options)
+      if options[:from]
+        command(Commands::CatchUpSubscription, stream, options[:from], options)
       else
-        Subscription.new(self, stream, options)
+        command(Commands::Subscription, stream, options)
       end
     end
 
     private
 
     def command(command, *args)
-      connection.command(command.new(connection, *args))
+      command.new(connection, *args)
     end
   end
 end

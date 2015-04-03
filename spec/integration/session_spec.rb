@@ -48,12 +48,11 @@ describe Estore::Session do
   end
 
   it 'reads all the events from a stream' do
-    events = session.read(stream_with(100)).sync
+    events = session.read(stream_with(200)).sync
 
-    expect(events.size).to be(100)
+    expect(events.size).to be(200)
     expect(events).to start_from(0)
   end
-
 
   it 'reads all the events forward from a stream' do
     events = session.read(stream_with(100), from: 20).sync
@@ -76,7 +75,6 @@ describe Estore::Session do
     stream_with(20, stream)
 
     sub = session.subscription(stream)
-    sub.on_error { |error| raise error.inspect }
     sub.on_event { |event| received << event }
     sub.start
 
@@ -97,10 +95,9 @@ describe Estore::Session do
     stream = random_stream
     received = []
 
-    stream_with(50, stream)
+    stream_with(2100, stream)
 
-    sub = session.subscription(stream, catch_up_from: 20)
-    sub.on_error { |error| raise error.inspect }
+    sub = session.subscription(stream, from: 20)
     sub.on_event { |event| received << event }
     sub.start
 
@@ -112,12 +109,12 @@ describe Estore::Session do
 
     Timeout.timeout(5) do
       loop do
-        break if received.size >= 130
+        break if received.size >= 2180
         sleep(0.1)
       end
     end
 
-    expect(received.size).to be(130)
+    expect(received.size).to be(2180)
     expect(received).to start_from(20)
   end
 end

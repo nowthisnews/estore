@@ -9,60 +9,20 @@ module Estore
     end
 
     def register(command)
-      unless command.finished?
-        @mutex.synchronize do
-          @commands[command.uuid] = command
-        end
+      @mutex.synchronize do
+        @commands[command.uuid] = command
       end
     end
 
-    def dispatch(uuid, message)
+    def remove(command)
+      @mutex.synchronize do
+        @commands.delete(command.uuid)
+      end
+    end
+
+    def dispatch(uuid, message, type)
       command = @commands[uuid]
-
-      if command
-        command.handle message
-
-        if command.finished?
-          @mutex.synchronize do
-            @commands.delete(uuid)
-          end
-        end
-      end
-    end
-
-    def rejected_command(uuid, error)
-      prom = nil
-
-      mutex.synchronize do
-        prom = requests.delete(uuid)
-      end
-
-      prom.reject(error) if prom
-    end
-
-    def trigger(uuid, method, *args)
-      target = mutex.synchronize { targets[uuid] }
-      return if target.nil?
-      target.__send__(method, *args)
-    end
-
-    def on_error(error = nil, &block)
-      if block
-        @error_handler = block
-      else
-        @error_handler.call(error) if @error_handler
-      end
-    end
-
-    private
-
-    def promise(uuid, target = nil)
-      prom = Promise.new(uuid)
-      mutex.synchronize do
-        requests[uuid] = prom
-        targets[uuid] = target
-      end
-      prom
+      command.handle(message, type) if command
     end
   end
 end

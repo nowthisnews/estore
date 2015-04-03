@@ -4,7 +4,6 @@ module Estore
     # packages.
     # Parsed packages are given back to the given handler as they are decoded.
     class Buffer
-
       def initialize(&block)
         @mutex = Mutex.new
         @buffer = ''.force_encoding('BINARY')
@@ -45,7 +44,7 @@ module Estore
       def handle(pkg)
         code, flags, uuid_bytes, message = parse(pkg)
         command = Estore::Connection.command_name(code)
-        @handler.call(command, message, Package.parse_uuid(uuid_bytes), flags)
+        @handler.call(message, command, Package.parse_uuid(uuid_bytes), flags)
       end
 
       def parse(pkg)

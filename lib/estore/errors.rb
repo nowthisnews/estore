@@ -1,4 +1,4 @@
 module Estore
-  class CannotConnectError < RuntimeError; end
-  class DisconnectionError < RuntimeError; end
+  CannotConnectError = Class.new(RuntimeError)
+  DisconnectionError = Class.new(RuntimeError)
 end
