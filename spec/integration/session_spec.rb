@@ -107,8 +107,9 @@ describe Estore::Session do
       end
     end
 
-    Timeout.timeout(5) do
+    Timeout.timeout(20) do
       loop do
+        puts "  Received: #{received.size}"
         break if received.size >= 2180
         sleep(0.1)
       end
