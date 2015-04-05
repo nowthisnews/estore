@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['mathieu.ravaux@gmail.com', 'hector0193@gmail.com']
   spec.summary       = 'An Event Store driver for Ruby'
   spec.description   = 'TCP driver to read and write events to Event Store'
-  spec.homepage      = 'https://github.com/rom-eventstore/estore'
+  spec.homepage      = 'https://github.com/eventstore-rb/estore'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0")
