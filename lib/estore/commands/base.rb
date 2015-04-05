@@ -16,6 +16,10 @@ module Estore
         @connection.remove(self)
       end
 
+      def reject!(error)
+        @promise.reject(error) if @promise
+      end
+
       def write(command, message = nil)
         @connection.write(@uuid, command, message)
       end

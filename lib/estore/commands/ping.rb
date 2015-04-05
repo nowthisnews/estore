@@ -4,11 +4,13 @@ module Estore
       include Command
 
       def call
+        register!
         write('Ping')
         promise
       end
 
       def handle(*)
+        remove!
         promise.fulfill('Pong')
       end
     end

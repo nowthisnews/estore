@@ -1,4 +1,5 @@
 module Estore
-  CannotConnectError = Class.new(RuntimeError)
-  DisconnectionError = Class.new(RuntimeError)
+  CannotConnectError = Class.new(StandardError)
+  DisconnectionError = Class.new(StandardError)
+  WriteEventsError = Class.new(StandardError)
 end

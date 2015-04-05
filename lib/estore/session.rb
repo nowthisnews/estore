@@ -13,21 +13,16 @@ module Estore
   # To get maximum performance from the connection, it is recommended to use it
   # asynchronously.
   class Session
-    attr_reader :host, :port, :connection, :context
+    extend Forwardable
+
+    delegate [:host, :post] => :@connection
 
     def initialize(host, port = 2113)
-      @host = host
-      @port = port
-      @context = ConnectionContext.new
-      @connection = Connection.new(host, port, context)
-    end
-
-    def on_error(error = nil, &block)
-      context.on_error(error, &block)
+      @connection = Connection.new(host, port)
     end
 
     def close
-      connection.close
+      @connection.close
     end
 
     def ping
@@ -68,7 +63,7 @@ module Estore
     private
 
     def command(command, *args)
-      command.new(connection, *args)
+      command.new(@connection, *args)
     end
   end
 end

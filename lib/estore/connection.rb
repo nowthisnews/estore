@@ -5,12 +5,13 @@ module Estore
   class Connection
     extend Forwardable
 
+    attr_reader :host, :port
     delegate [:register, :remove] => :@context
 
-    def initialize(host, port, context)
+    def initialize(host, port)
       @host = host
       @port = Integer(port)
-      @context = context
+      @context = ConnectionContext.new
       @buffer = Buffer.new(&method(:on_received_package))
       @mutex = Mutex.new
     end
@@ -47,14 +48,11 @@ module Estore
 
     def connect
       @socket = TCPSocket.open(@host, @port)
-      Thread.new do
-        process_downstream
-      end
+      Thread.new { process_downstream }
       @socket
     rescue TimeoutError, Errno::ECONNREFUSED, Errno::EHOSTDOWN,
            Errno::EHOSTUNREACH, Errno::ENETUNREACH, Errno::ETIMEDOUT
-      raise CannotConnectError, "Error connecting to Eventstore on "\
-        "#{@host.inspect}:#{@port.inspect} (#{$ERROR_INFO.class})"
+      raise CannotConnectError, "#{@host}:#{@port} (#{$ERROR_INFO.class})"
     end
 
     def process_downstream
@@ -62,21 +60,8 @@ module Estore
         @buffer << socket.sysread(4096)
       end
     rescue IOError, EOFError
-      on_disconnect
+      @context.on_error(DisconnectionError.new) unless @terminating
     rescue => error
-      on_exception(error)
-    end
-
-    def on_disconnect
-      return if @terminating
-      puts 'Eventstore disconnected'
-      context.on_error(DisconnectionError.new('Eventstore disconnected'))
-    end
-
-    def on_exception(error)
-      puts "process_downstream_error"
-      puts error.message
-      puts error.backtrace
       @context.on_error(error)
     end
   end

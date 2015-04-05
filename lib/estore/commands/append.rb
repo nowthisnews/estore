@@ -26,15 +26,15 @@ module Estore
       end
 
       def handle(message, *)
+        remove!
+
         response = decode(WriteEventsCompleted, message)
 
-        if response.result != OperationResult::Success
-          # TODO: Create custom exceptions
-          raise "WriteEvents command failed with uuid #{@uuid}"
+        if response.result == OperationResult::Success
+          promise.fulfill(response)
+        else
+          promise.reject Estore::WriteEventsError.new(response)
         end
-
-        remove!
-        promise.fulfill(response)
       end
 
       private

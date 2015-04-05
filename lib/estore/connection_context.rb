@@ -24,5 +24,12 @@ module Estore
       command = @commands[uuid]
       command.handle(message, type) if command
     end
+
+    def on_error(error)
+      # TODO: Error handling
+      @mutex.synchronize do
+        @commands.each { |_uuid, command| command.reject! error }
+      end
+    end
   end
 end
