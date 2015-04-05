@@ -39,33 +39,22 @@ describe Estore::Session do
     stream
   end
 
-  RSpec::Matchers.define :start_from do |start|
-    match do |events|
-      events.each_with_index do |event, index|
-        expect(parse_data(event)).to eql('id' => index + start)
-      end
-    end
-  end
-
   it 'reads all the events from a stream' do
-    events = session.read(stream_with(200)).sync
+    stream = session.read(stream_with(200)).sync
 
-    expect(events.size).to be(200)
-    expect(events).to start_from(0)
+    expect(stream).to have(200).events.starting_at(0)
   end
 
   it 'reads all the events forward from a stream' do
-    events = session.read(stream_with(100), from: 20).sync
+    stream = session.read(stream_with(100), from: 20).sync
 
-    expect(events.size).to be(80)
-    expect(events).to start_from(20)
+    expect(stream).to have(80).events.starting_at(20)
   end
 
   it 'reads a batch of events from a stream' do
-    events = session.read(stream_with(30), from: 10, limit: 15).sync
+    stream = session.read(stream_with(30), from: 10, limit: 15).sync
 
-    expect(events.size).to be(15)
-    expect(events).to start_from(10)
+    expect(stream).to have(15).events.starting_at(10)
   end
 
   it 'allows to make a live subscription' do
@@ -80,15 +69,7 @@ describe Estore::Session do
 
     stream_with(50, stream)
 
-    Timeout.timeout(5) do
-      loop do
-        break if received.size >= 50
-        sleep(0.1)
-      end
-    end
-
-    expect(received.size).to be(50)
-    expect(received).to start_from(20)
+    expect(received).to have(50).events.starting_at(20).before(5.seconds)
   end
 
   it 'allows to make a catchup subscription' do
@@ -97,8 +78,11 @@ describe Estore::Session do
 
     stream_with(2100, stream)
 
-    sub = session.subscription(stream, from: 20)
-    sub.on_event { |event| received << event }
+    sub = session.subscription(stream, from: 30)
+    sub.on_event do |event|
+      received << event
+      puts "Receiving... #{received.size}"
+    end
     sub.start
 
     Thread.new do
@@ -107,15 +91,6 @@ describe Estore::Session do
       end
     end
 
-    Timeout.timeout(20) do
-      loop do
-        puts "  Received: #{received.size}"
-        break if received.size >= 2180
-        sleep(0.1)
-      end
-    end
-
-    expect(received.size).to be(2180)
-    expect(received).to start_from(20)
+    expect(received).to have(2170).events.starting_at(30).before(20.seconds)
   end
 end
