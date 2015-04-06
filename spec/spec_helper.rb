@@ -39,6 +39,8 @@ RSpec::Matchers.define :have do |expectation|
         expect(wrapper.event.event_number).to be(index + @start)
       end
     end
+
+    true
   end
 
   chain(:events) {}

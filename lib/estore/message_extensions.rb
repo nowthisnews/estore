@@ -13,7 +13,9 @@ module Estore
       original_event.event_number
     end
   end
-end
 
-Estore::ResolvedEvent.send(:include, Estore::OriginalEventMixin)
-Estore::ResolvedIndexedEvent.send(:include, Estore::OriginalEventMixin)
+  ResolvedEvent.send(:include, OriginalEventMixin)
+  ResolvedIndexedEvent.send(:include, OriginalEventMixin)
+
+  ReadStreamEventsForwardCompleted = ReadStreamEventsCompleted
+end

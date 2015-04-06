@@ -1,17 +1,11 @@
 module Estore
   module Commands
-    class Subscription
-      include Command
-
+    module Subscription
       def initialize(connection, stream, options = {})
         super(connection)
         @has_finished = false
         @stream = stream
         @resolve_link_tos = options.fetch(:resolve_link_tos, true)
-      end
-
-      def finished?
-        @has_finished
       end
 
       def call
@@ -37,11 +31,6 @@ module Estore
 
       def on_event(&block)
         @handler = block
-      end
-
-      def handle(message, type)
-        dispatch(decode(StreamEventAppeared, message).event) if
-          type == 'StreamEventAppeared'
       end
 
       def dispatch(event)

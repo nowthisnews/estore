@@ -1,11 +1,14 @@
 module Estore
   module Commands
-    class CatchUpSubscription < Subscription
+    class CatchUpSubscription
       include Command
+      include Subscription
+
+      handle StreamEventAppeared => :event_appeared,
+             SubscriptionConfirmation => :ignore
 
       def initialize(connection, stream, from, options = {})
-        super(connection, options)
-        @stream = stream
+        super(connection, stream, options)
         @from = from
         @batch = options[:batch_size]
         @mutex = Mutex.new
@@ -42,18 +45,14 @@ module Estore
         @queue.find_all { |event| event.original_event_number > @position }
       end
 
-      def handle(message, type)
-        if type == 'StreamEventAppeared'
-          event = decode(StreamEventAppeared, message).event
-
-          unless @caught_up
-            @mutex.synchronize do
-              @queue << event unless @caught_up
-            end
+      def event_appeared(response)
+        unless @caught_up
+          @mutex.synchronize do
+            @queue << response.event unless @caught_up
           end
-
-          dispatch(event) if @caught_up
         end
+
+        dispatch(response.event) if @caught_up
       end
     end
   end

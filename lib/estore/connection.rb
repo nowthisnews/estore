@@ -34,11 +34,11 @@ module Estore
 
     private
 
-    def on_received_package(message, type, uuid, _flags)
+    def on_received_package(type, package, uuid, _flags)
       if type == 'HeartbeatRequestCommand'
         write(SecureRandom.uuid, 'HeartbeatResponseCommand')
       else
-        @context.dispatch(uuid, message, type)
+        @context.dispatch(uuid, Package.decode(type, package))
       end
     end
 

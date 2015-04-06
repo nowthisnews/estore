@@ -23,6 +23,15 @@ module Estore
       uuid.scan(/[0-9a-f]{4}/).map { |x| x.to_i(16) }.pack('n*')
     end
 
+    def self.decode(type, message)
+      message ? Estore.const_get(type).decode(message) : nil
+    rescue => error
+      puts 'Decoding error:'
+      puts type: type, message: message
+      puts error.backtrace
+      raise error
+    end
+
     def self.parse_uuid(bytes)
       a, b, c, d, e, f, g, h =
         *bytes.unpack('n*').map { |n| n.to_s(16) }.map { |n| n.rjust(4, '0') }

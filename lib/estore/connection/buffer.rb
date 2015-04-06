@@ -42,9 +42,9 @@ module Estore
       end
 
       def handle(pkg)
-        code, flags, uuid_bytes, message = parse(pkg)
+        code, flags, uuid_bytes, package = parse(pkg)
         command = Estore::Connection.command_name(code)
-        @handler.call(message, command, Package.parse_uuid(uuid_bytes), flags)
+        @handler.call(command, package, Package.parse_uuid(uuid_bytes), flags)
       end
 
       def parse(pkg)

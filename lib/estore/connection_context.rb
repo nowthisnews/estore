@@ -20,15 +20,19 @@ module Estore
       end
     end
 
-    def dispatch(uuid, message, type)
+    def dispatch(uuid, message)
       command = @commands[uuid]
-      command.handle(message, type) if command
+      command.handle(message) if command
+    rescue => error
+      command.reject! error
+      remove(command)
     end
 
     def on_error(error)
       # TODO: Error handling
       @mutex.synchronize do
         @commands.each { |_uuid, command| command.reject! error }
+        @commands = {}
       end
     end
   end

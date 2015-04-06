@@ -2,7 +2,9 @@ module Estore
   module Commands
     class ReadForward
       include Command
-      include Command::ReadStreamForward
+      include ReadStreamForward
+
+      handle ReadStreamEventsCompleted => :batch_completed
 
       def initialize(connection, stream, from, batch_size = nil, &block)
         super(connection)
@@ -20,8 +22,7 @@ module Estore
         promise
       end
 
-      def handle(message, *)
-        response = decode(ReadStreamEventsCompleted, message)
+      def keep_reading(response)
         events = Array(response.events)
 
         @from += events.size
@@ -32,6 +33,17 @@ module Estore
         if response.is_end_of_stream
           remove!
           promise.fulfill(@block ? nil : @events)
+        end
+      end
+
+      def batch_completed(response)
+        error = error(response)
+
+        if error
+          remove!
+          promise.reject error
+        else
+          keep_reading(response)
         end
       end
     end

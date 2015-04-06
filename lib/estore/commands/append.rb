@@ -3,9 +3,7 @@ module Estore
     class Append
       include Command
 
-      CONTENT_TYPES = {
-        json: 1
-      }
+      handle WriteEventsCompleted => :completed
 
       def initialize(connection, stream, events, options = {})
         super(connection)
@@ -13,22 +11,21 @@ module Estore
       end
 
       def call
+        register!
+
         msg = WriteEvents.new(
           event_stream_id: @stream,
           expected_version: @options[:expected_version] || -2,
           events: Array(@events).map { |event| new_event(event) },
           require_master: true
         )
-
-        register!
         write('WriteEvents', msg)
+
         promise
       end
 
-      def handle(message, *)
+      def completed(response)
         remove!
-
-        response = decode(WriteEventsCompleted, message)
 
         if response.result == OperationResult::Success
           promise.fulfill(response)
@@ -38,6 +35,10 @@ module Estore
       end
 
       private
+
+      CONTENT_TYPES = {
+        json: 1
+      }
 
       def new_event(event)
         uuid = event[:id] || SecureRandom.uuid

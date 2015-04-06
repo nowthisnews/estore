@@ -3,6 +3,12 @@ module Estore
     module Command
       attr_reader :uuid
 
+      def self.included(base)
+        base.extend ClassMethods
+        base.singleton_class.class_eval { attr_accessor :handlers }
+        base.handlers = {}
+      end
+
       def initialize(connection)
         @connection = connection
         @uuid = SecureRandom.uuid
@@ -28,26 +34,20 @@ module Estore
         @promise ||= Promise.new(@uuid)
       end
 
-      def decode(type, message)
-        type.decode(message)
-      rescue => error
-        puts "Protobuf decoding error on connection #{object_id}"
-        puts type: type, message: message
-        puts error.backtrace
-        raise error
+      def handle(message)
+        handler = self.class.handlers[message.class]
+
+        if handler
+          send(handler, message) unless handler == :ignore
+        else
+          $stderr.puts "#{message.class} arrived but not handled by "\
+            "command #{self.class}"
+        end
       end
 
-      module ReadStreamForward
-        def read(stream, from, limit)
-          msg = ReadStreamEvents.new(
-            event_stream_id: stream,
-            from_event_number: from,
-            max_count: limit,
-            resolve_link_tos: true,
-            require_master: false
-          )
-
-          write('ReadStreamEventsForward', msg)
+      module ClassMethods
+        def handle(hash)
+          handlers.update(hash)
         end
       end
     end

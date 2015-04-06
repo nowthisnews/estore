@@ -56,7 +56,7 @@ module Estore
       if options[:from]
         command(Commands::CatchUpSubscription, stream, options[:from], options)
       else
-        command(Commands::Subscription, stream, options)
+        command(Commands::LiveSubscription, stream, options)
       end
     end
 

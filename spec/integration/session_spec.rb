@@ -57,6 +57,12 @@ describe Estore::Session do
     expect(stream).to have(15).events.starting_at(10)
   end
 
+  it 'reads no events when the stream does not exist' do
+    stream = session.read('doesnotexist').sync
+
+    expect(stream).to have(0).events
+  end
+
   it 'allows to make a live subscription' do
     stream = random_stream
     received = []
@@ -86,11 +92,11 @@ describe Estore::Session do
     sub.start
 
     Thread.new do
-      50.times do
+      30.times do
         stream_with(2, stream)
       end
     end
 
-    expect(received).to have(2170).events.starting_at(30).before(20.seconds)
+    expect(received).to have(2130).events.starting_at(30).before(20.seconds)
   end
 end
