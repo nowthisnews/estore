@@ -24,9 +24,11 @@ describe Estore::Commands::Append do
   end
 
   it 'rejects the promise on errors' do
-    append.handle(Estore::WriteEventsCompleted.new(
-                    result: Estore::OperationResult::AccessDenied
-                  ))
+    append.handle(
+      Estore::WriteEventsCompleted.new(
+        result: Estore::OperationResult::AccessDenied
+      )
+    )
 
     expect { promise.sync }.to raise_exception
   end

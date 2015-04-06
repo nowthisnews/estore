@@ -2,6 +2,7 @@
 [travis]: https://travis-ci.org/eventstore-rb/estore
 [gemnasium]: https://gemnasium.com/eventstore-rb/estore
 [codeclimate]: https://codeclimate.com/github/eventstore-rb/estore
+[coveralls]: https://coveralls.io/r/eventstore-rb/estore
 [inchpages]: http://inch-ci.org/github/eventstore-rb/estore
 [gitter]: https://gitter.im/eventstore-rb/estore?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
@@ -11,7 +12,7 @@
 [![Build Status](https://travis-ci.org/eventstore-rb/estore.svg?branch=master)][travis]
 [![Dependency Status](https://gemnasium.com/eventstore-rb/estore.png)][gemnasium]
 [![Code Climate](https://codeclimate.com/github/eventstore-rb/estore/badges/gpa.svg)][codeclimate]
-[![Test Coverage](https://codeclimate.com/github/eventstore-rb/estore/badges/coverage.svg)][codeclimate]
+[![Coverage Status](https://coveralls.io/repos/eventstore-rb/estore/badge.svg)][coveralls]
 [![Inline docs](http://inch-ci.org/github/eventstore-rb/estore.svg?branch=master)][inchpages]
 [![Join the chat at https://gitter.im/eventstore-rb/estore](https://badges.gitter.im/Join%20Chat.svg)][gitter]
 

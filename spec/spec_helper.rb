@@ -1,8 +1,6 @@
 # encoding: utf-8
-if RUBY_ENGINE == 'rbx'
-  require 'codeclimate-test-reporter'
-  CodeClimate::TestReporter.start
-end
+require 'coveralls'
+Coveralls.wear!
 
 require 'estore'
 
