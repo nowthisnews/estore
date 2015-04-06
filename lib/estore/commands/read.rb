@@ -18,7 +18,7 @@ module Estore
         when ReadStreamEventsCompleted::ReadStreamResult::AccessDenied
           :access_denied
         when ReadStreamEventsCompleted::ReadStreamResult::Error
-          response.error
+          response.error ? response.error : 'No message given'
         else
           false
         end

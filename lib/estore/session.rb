@@ -26,7 +26,7 @@ module Estore
     end
 
     def ping
-      command(Commands::Ping)
+      command(Commands::Ping).call
     end
 
     def read(stream, options = {})

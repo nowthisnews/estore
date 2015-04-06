@@ -1,7 +1,5 @@
 # encoding: utf-8
-require 'coveralls'
-Coveralls.wear!
-
+require 'simplecov'
 require 'estore'
 
 trap 'TTIN' do

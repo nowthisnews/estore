@@ -24,11 +24,10 @@ module Estore
     end
 
     def self.decode(type, message)
-      message ? Estore.const_get(type).decode(message) : nil
+      message.empty? ? nil : Estore.const_get(type).decode(message)
     rescue => error
       puts 'Decoding error:'
       puts type: type, message: message
-      puts error.backtrace
       raise error
     end
 

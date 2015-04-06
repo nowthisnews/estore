@@ -39,6 +39,10 @@ describe Estore::Session do
     stream
   end
 
+  it 'pings the Event Store' do
+    Timeout.timeout(5) { session.ping.sync }
+  end
+
   it 'reads all the events from a stream' do
     stream = session.read(stream_with(200)).sync
 
@@ -57,7 +61,7 @@ describe Estore::Session do
     expect(stream).to have(15).events.starting_at(10)
   end
 
-  it 'reads no events when the stream does not exist' do
+  it 'reads no events if the stream does not exist' do
     stream = session.read('doesnotexist').sync
 
     expect(stream).to have(0).events
@@ -85,17 +89,22 @@ describe Estore::Session do
     stream_with(2100, stream)
 
     sub = session.subscription(stream, from: 30)
+
     sub.on_event do |event|
+      # Events received during processing should be
+      # received later too
+      sleep 1 if received.size < 1
       received << event
       puts "Receiving... #{received.size}"
     end
-    sub.start
 
     Thread.new do
       30.times do
         stream_with(2, stream)
       end
     end
+
+    sub.start
 
     expect(received).to have(2130).events.starting_at(30).before(20.seconds)
   end

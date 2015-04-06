@@ -28,6 +28,10 @@ module Estore
       remove(command)
     end
 
+    def empty?
+      @commands.empty?
+    end
+
     def on_error(error)
       # TODO: Error handling
       @mutex.synchronize do
