@@ -108,4 +108,29 @@ describe Estore::Session do
 
     expect(received).to have(2130).events.starting_at(30).before(20.seconds)
   end
+
+  it 'allows to make a catchup subscription to a non-existing stream' do
+    stream = random_stream
+    received = []
+
+    sub = session.subscription(stream, from: 0)
+
+    sub.on_event do |event|
+      # Events received during processing should be
+      # received later too
+      sleep 1 if received.size < 1
+      received << event
+      puts "Receiving... #{received.size}"
+    end
+
+    sub.start
+
+    Thread.new do
+      30.times do
+        stream_with(2, stream)
+      end
+    end
+
+    expect(received).to have(60).events.starting_at(0).before(20.seconds)
+  end
 end
