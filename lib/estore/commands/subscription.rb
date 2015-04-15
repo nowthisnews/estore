@@ -6,6 +6,8 @@ module Estore
         @has_finished = false
         @stream = stream
         @resolve_link_tos = options.fetch(:resolve_link_tos, true)
+        @worker_queue = Queue.new
+        @worker = Thread.new { loop { worker_loop } }
       end
 
       def call
@@ -33,9 +35,17 @@ module Estore
         @handler = block
       end
 
-      def dispatch(event)
-        @position = event.original_event_number
-        @handler.call(event)
+      def enqueue(events)
+        events = Array(events)
+        @position = events.last.original_event_number
+        @worker_queue << events
+      end
+
+      def worker_loop
+        @worker_queue.pop.each { |event| @handler.call(event) }
+      rescue => e
+        puts e.message
+        puts e.backtrace
       end
     end
   end

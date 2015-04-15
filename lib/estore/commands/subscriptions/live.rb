@@ -8,7 +8,7 @@ module Estore
              SubscriptionConfirmation => :ignore
 
       def event_appeared(response)
-        dispatch(response.event)
+        enqueue response.event
       end
     end
   end

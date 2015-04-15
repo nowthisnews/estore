@@ -116,9 +116,6 @@ describe Estore::Session do
     sub = session.subscription(stream, from: 0)
 
     sub.on_event do |event|
-      # Events received during processing should be
-      # received later too
-      sleep 1 if received.size < 1
       received << event
       puts "Receiving... #{received.size}"
     end

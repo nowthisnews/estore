@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Estore::ConnectionContext do
   subject(:context) { Estore::ConnectionContext.new }
 
-  let(:bad_command) do
-    BadCommand = Class.new do
+  let(:bad_command_class) do
+    Class.new do
       attr_reader :error
 
       def uuid
@@ -19,9 +19,9 @@ describe Estore::ConnectionContext do
         boom
       end
     end
-
-    BadCommand.new
   end
+
+  let(:bad_command) { bad_command_class.new }
 
   before do
     context.register(bad_command)

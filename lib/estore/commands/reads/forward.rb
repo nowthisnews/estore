@@ -41,7 +41,7 @@ module Estore
 
         if error
           remove!
-          promise.reject error
+          promise.reject ReadEventsError.new(error)
         else
           keep_reading(response)
         end

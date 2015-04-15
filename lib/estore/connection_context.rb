@@ -26,6 +26,9 @@ module Estore
     rescue => error
       command.reject! error
       remove(command)
+
+      puts "[DISPATCH] #{error.message}"
+      puts error.backtrace
     end
 
     def empty?

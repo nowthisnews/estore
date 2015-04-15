@@ -56,9 +56,7 @@ module Estore
     end
 
     def process_downstream
-      loop do
-        @buffer << socket.sysread(4096)
-      end
+      loop { @buffer << socket.sysread(4096) }
     rescue IOError, EOFError
       @context.on_error(DisconnectionError.new) unless @terminating
     rescue => error
