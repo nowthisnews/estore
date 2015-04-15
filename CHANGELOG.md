@@ -1,3 +1,10 @@
+## v0.1.3 - 2015-04-15
+### Added
+* Workers to dispatch events in subscriptions
+* Print error information while dispatching
+
+[Compare v0.1.2...v0.1.3](https://github.com/eventstore-rb/estore/compare/v0.1.2...v0.1.3)
+
 ## v0.1.2 - 2015-04-05
 ### Added
 * Errors during commands reject promises too
