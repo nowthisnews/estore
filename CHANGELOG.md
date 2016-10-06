@@ -1,3 +1,8 @@
+### 0.1.5 2016-10-06
+* Add methods for cirqus compatibility
+* Add better error for writing events with wrong version
+
+
 ### 0.1.4 2016-10-06
 Tests cleanup. Add hurtle file.
 
