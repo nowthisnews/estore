@@ -191,6 +191,10 @@ module Estore
     optional :metadata, :bytes, 8
     optional :created, :int64, 9
     optional :created_epoch, :int64, 10
+
+    # NOTE: for compatibility with http_eventstore
+    alias_method :stream_name, :event_stream_id
+    alias_method :type, :event_type
   end
 
   class ResolvedIndexedEvent
