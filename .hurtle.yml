@@ -2,4 +2,4 @@ project_name: estore
 change:
   version: patch
   desc: |
-    * TODO.
+    Tests cleanup. Add hurtle file.
