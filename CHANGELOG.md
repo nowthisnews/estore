@@ -1,3 +1,7 @@
+### 0.1.4 2016-10-06
+Tests cleanup. Add hurtle file.
+
+
 ## v0.1.3 - 2015-04-15
 ### Added
 * Workers to dispatch events in subscriptions
