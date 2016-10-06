@@ -30,6 +30,6 @@ describe Estore::Commands::Append do
       )
     )
 
-    expect { promise.sync }.to raise_exception
+    expect { promise.sync }.to raise_error StandardError
   end
 end

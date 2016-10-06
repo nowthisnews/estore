@@ -4,25 +4,16 @@ require 'rspec/core/rake_task'
 Bundler.setup
 
 RSpec::Core::RakeTask.new(:spec)
-task default: [:ci]
+task default: [:spec]
 
-desc 'Run CI tasks'
-task ci: [:spec]
+task :test # TODO: use rspec tests when real event store is available in unit tests on jenkins
 
-begin
-  require 'rubocop/rake_task'
-
-  Rake::Task[:default].enhance [:rubocop]
-
-  RuboCop::RakeTask.new do |task|
-    task.options << '--display-cop-names'
-  end
-rescue LoadError
-end
+# https://github.com/EventStore/EventStore/blob/release-v3.9.2/src/Protos/ClientAPI/ClientMessageDtos.proto
+# https://github.com/EventStore/EventStore/blob/release-v4.0.0/src/Protos/ClientAPI/ClientMessageDtos.proto
 
 VENDORED_PROTO = 'vendor/proto/ClientMessageDtos.proto'
 PROTO_URL = 'https://raw.githubusercontent.com/EventStore/EventStore/'\
-    'oss-v3.0.1/src/Protos/ClientAPI/ClientMessageDtos.proto'
+            'release-v3.9.2/src/Protos/ClientAPI/ClientMessageDtos.proto'
 
 desc 'Update the protobuf messages definition'
 task :proto do

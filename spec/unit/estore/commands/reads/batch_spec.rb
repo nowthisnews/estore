@@ -23,12 +23,12 @@ describe Estore::Commands::ReadBatch do
   it 'rejects the promise on errors' do
     read.handle(result(:Error))
 
-    expect { promise.sync }.to raise_exception
+    expect { promise.sync }.to raise_error StandardError
   end
 
   it 'rejects the promise when access is denied' do
     read.handle(result(:AccessDenied))
 
-    expect { promise.sync }.to raise_exception
+    expect { promise.sync }.to raise_error StandardError
   end
 end

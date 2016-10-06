@@ -95,7 +95,7 @@ describe Estore::Session do
       # received later too
       sleep 1 if received.size < 1
       received << event
-      puts "Receiving... #{received.size}"
+      # puts "Receiving... #{received.size}"
     end
 
     Thread.new do
@@ -117,7 +117,7 @@ describe Estore::Session do
 
     sub.on_event do |event|
       received << event
-      puts "Receiving... #{received.size}"
+      # puts "Receiving... #{received.size}"
     end
 
     sub.start

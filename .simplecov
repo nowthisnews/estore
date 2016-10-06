@@ -10,7 +10,6 @@ SimpleCov.start do
 
   formatters = [
     SimpleCov::Formatter::HTMLFormatter,
-    Coveralls::SimpleCov::Formatter
   ]
 
   if RUBY_ENGINE == 'rbx'
@@ -18,7 +17,5 @@ SimpleCov.start do
     formatters << CodeClimate::TestReporter::Formatter
   end
 
-  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
-    *formatters
-  ]
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(formatters)
 end
