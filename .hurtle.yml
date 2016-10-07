@@ -2,4 +2,4 @@ project_name: estore
 change:
   version: patch
   desc: |
-    Fix method delegation typo in Session class.
+    Fix problem with loading projection which contain deleted events (`empty` events).

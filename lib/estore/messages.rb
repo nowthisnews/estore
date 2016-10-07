@@ -198,7 +198,7 @@ module Estore
   end
 
   class ResolvedIndexedEvent
-    required :event, EventRecord, 1
+    optional :event, EventRecord, 1
     optional :link, EventRecord, 2
   end
 
