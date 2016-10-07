@@ -1,3 +1,7 @@
+### 0.1.7 2016-10-07
+Fix problem with loading projection which contain deleted events (`empty` events).
+
+
 ### 0.1.6 2016-10-07
 Fix method delegation typo in Session class.
 
