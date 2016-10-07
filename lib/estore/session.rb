@@ -15,7 +15,7 @@ module Estore
   class Session
     extend Forwardable
 
-    delegate [:host, :post] => :@connection
+    delegate [:host, :port] => :@connection
 
     def initialize(host, port = 2113)
       @connection = Connection.new(host, port)

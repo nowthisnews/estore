@@ -2,5 +2,4 @@ project_name: estore
 change:
   version: patch
   desc: |
-    * Add methods for cirqus compatibility
-    * Add better error for writing events with wrong version
+    Fix method delegation typo in Session class.
