@@ -1,3 +1,7 @@
+### 0.1.6 2016-10-07
+Fix method delegation typo in Session class.
+
+
 ### 0.1.5 2016-10-06
 * Add methods for cirqus compatibility
 * Add better error for writing events with wrong version
