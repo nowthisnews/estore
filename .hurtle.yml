@@ -2,4 +2,4 @@ project_name: estore
 change:
   version: patch
   desc: |
-    Fix problem with loading projection which contain deleted events (`empty` events).
+    Raise a proper error when a projection stream isn't there.

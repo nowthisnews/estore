@@ -22,7 +22,7 @@ module Estore
         error = error(response)
 
         if error
-          promise.reject error
+          promise.reject ReadEventsError.new(error)
         else
           promise.fulfill(Array(response.events))
         end

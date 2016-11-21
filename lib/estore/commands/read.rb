@@ -16,7 +16,7 @@ module Estore
       def error(response)
         case response.result
         when ReadStreamEventsCompleted::ReadStreamResult::AccessDenied
-          :access_denied
+          'Access denied (stream does not exist?)'
         when ReadStreamEventsCompleted::ReadStreamResult::Error
           response.error ? response.error : 'No message given'
         else
