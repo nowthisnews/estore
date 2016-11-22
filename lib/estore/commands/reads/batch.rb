@@ -22,7 +22,8 @@ module Estore
         error = error(response)
 
         if error
-          promise.reject error
+          message = [error, "(stream '#{@stream}' does not exist?)"].join(' ')
+          promise.reject ReadEventsError.new(message)
         else
           promise.fulfill(Array(response.events))
         end
