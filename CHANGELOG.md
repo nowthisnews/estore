@@ -1,3 +1,7 @@
+### 0.1.8 2016-11-22
+Raise a proper error when a projection stream isn't there.
+
+
 ### 0.1.7 2016-10-07
 Fix problem with loading projection which contain deleted events (`empty` events).
 
