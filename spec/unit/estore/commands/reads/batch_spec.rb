@@ -23,7 +23,7 @@ describe Estore::Commands::ReadBatch do
   it 'rejects the promise on errors' do
     read.handle(result(:Error))
 
-    expect { promise.sync }.to raise_error StandardError
+    expect { promise.sync }.to raise_error StandardError, 'No message given (stream \'test-stream\' does not exist?)'
   end
 
   it 'rejects the promise when access is denied' do
